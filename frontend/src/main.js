@@ -1,0 +1,96 @@
+import { Window } from '@tauri-apps/api/window';
+import { listen } from '@tauri-apps/api/event';
+const { invoke } = window.__TAURI__.core;
+
+const compList = document.getElementById('autocompleteList');
+const txtInput = document.getElementById('textInput');
+const appWindow = new Window('main');
+
+let childnum = -1;
+
+txtInput.focus()
+
+listen('show_window', (event) => {
+  console.log('Received show-window event from backend!', event);
+  appWindow.show(); // Show the window when the event is received
+  const setFocus = async () => {
+    if (await appWindow.isMinimized()) {
+      await appWindow.unminimize(); // Unminimize the window if it is minimized
+    }
+    await appWindow.setFocus()
+    txtInput.focus();
+  }; 
+  setFocus();
+});
+
+async function find_matches(text) {
+  // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
+  let matches = await invoke("find_matches", { input: text, cnt: 5 });
+  //console.log(matches)
+  compList.innerHTML = ''; // Clear previous results
+  matches.forEach(match => {
+    const item = document.createElement('span');
+    item.innerHTML = `<strong>${match.matchstr.slice(0, match.matchlen)}</strong>${match.matchstr.slice(match.matchlen, match.matchstr.length)} (${match.value})`;
+    item.className = 'autocomplete-item';
+    item.dataset.alias = match.matchstr;
+    compList.appendChild(item);
+  });
+  if (matches.length > 0) {
+    compList.children[0].classList.add('selected'); // Select the first item by default
+    childnum = 0; // Reset childnum to the first item
+  } else {
+    childnum = -1; // No matches found
+  }
+}
+
+async function select_alias(alias){
+  return await invoke("select_alias", { alias});
+}
+
+async function clear_and_hide() {
+  txtInput.value = ''; // Clear the input field
+  compList.innerHTML = ''; // Clear the list
+  await appWindow.hide(); // Hide the window
+}
+
+txtInput.addEventListener("input", (event) => {
+  if (event.target.value.length === 0) {
+    compList.innerHTML = ''; // Clear results if input is less than 3 characters
+    return;
+  }
+  find_matches(event.target.value);
+  childnum = -1; // Reset childnum when input changes
+});
+
+//TODO arrow key UP Down
+window.addEventListener('keydown', (e) => {
+  if (e.key === "Escape") {
+    // Use either close or hide
+    // await appWindow.close(); // Quits the window
+    clear_and_hide(); // Clear input and hide the window
+    return;
+  }
+
+  if (e.key === 'Enter' && childnum >= 0 && childnum < compList.children.length) {
+    //close the window and send api
+    let alias = compList.children[childnum].dataset.alias ;
+    clear_and_hide().then(() => {    
+      select_alias(alias)
+    });
+  }
+
+  if (e.key === 'Tab') {
+    e.preventDefault(); // Prevent default tab behavior (focus change)
+    if (compList.children.length === 0)
+       return; // No items to select
+
+    // if (childnum >= 0) {
+       compList.children[childnum].classList.remove('selected'); // Remove selection from current item
+    // }
+
+    childnum = (childnum + 1) % compList.children.length; // Cycle through items
+    console.log(`Selected item index: ${childnum}`);
+    compList.children[childnum].classList.add('selected');
+  }
+}
+);
