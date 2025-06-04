@@ -1,4 +1,4 @@
-use unicode_manager_lib::trie::Trie;
+use unialias_lib::trie::Trie;
 
 fn main() {
     let mut mytrie = Trie::new();

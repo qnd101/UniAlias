@@ -25,6 +25,14 @@ impl TrieNode {
         false
     }
 
+    fn try_add_child_front(&mut self, child_idx: usize) -> bool {
+        if let TrieNodeContent::Internal { children } = &mut self.content {
+            children.insert(0, child_idx);
+            return true;
+        }
+        false
+    }
+
     // Removes child if the node is internal
     fn try_remove_child(&mut self, child_idx: usize) -> bool {
         if let TrieNodeContent::Internal { children } = &mut self.content {
@@ -143,11 +151,14 @@ impl Trie {
             TrieNodeContent::Leaf { data } => Result::Ok(*data),
         }
     }
+
     /// Appends a leaf and creates internal nodes if needed
     ///
     /// Value must be given as a nonempty ASCII string
     ///
     /// If the same leaf already exists the input will be ignored
+    ///
+    /// If a leaf has the same value as its parent, it is always set as the first item and is assumed to be so.
     pub fn append_leaf(&mut self, input: String, data: char) -> Result<()> {
         assert!(input.len() > 0, "Value must be a non-empty string");
         assert!(input.is_ascii(), "Value must be an ASCII string");
@@ -156,40 +167,50 @@ impl Trie {
         let (ndidx, match_len) = self.find_max_match(&in_chars);
         //case 1: internal && inclusion(match node value is strictly contained inside input string) -> add leaf as child of the match node
         //this is also the case when the match node is the root
-        //case 2: internal && match node value = input string -> check is there is a child of same value. If not, add the leaf, else error
-        //case 3: internal && conflict || leaf && nonperfect match -> add new node with matching substring and add the new leaf and matching node as children
+        //case 2: internal && match node value = input string -> check is there is a child of same value. If not, add the leaf at front, else error
+        //case 3: internal && conflict (case 3-1) || leaf && nonperfect match (case 3-2) -> add new node with matching substring and add the new leaf and matching node as children
         //case 4: leaf && perfect match -> error
 
         let match_node = &self.nodes[ndidx];
+
+        //in case 3-1, the new leaf must be added first
+        //in case 3-2, the new leaf can be added first unless the match string equals the value of the match node
+        let mut case3_new_first = true;
 
         match &match_node.content {
             TrieNodeContent::Internal { children } => {
                 if match_len == match_node.value.len() {
                     //case 1 & case 2
-                    if match_len < in_chars.len()
-                        || children
-                            .iter()
-                            .all(|chidx| self.nodes[*chidx].value.len() > match_len)
-                    {
-                        let leaf_idx = self.nodes.len();
-                        self.nodes.push(TrieNode {
-                            value: in_chars,
-                            parent: ndidx,
-                            content: TrieNodeContent::Leaf { data },
-                        });
-                        debug_assert!(self.nodes[ndidx].try_add_child(leaf_idx));
-                        return Ok(()); //case 1 & case 2
+                    //if there is a child with the same value, we return an error
+                    if match_len == in_chars.len() && children.len() > 0 && self.nodes[children[0]].value.len() == match_len {
+                        return Err(anyhow::anyhow!("Leaf with same value already exists"));
                     }
-                    return Err(anyhow::anyhow!("Leaf with same value already exists"));
+                    let case2 = match_len == in_chars.len();
+                    //add the leaf as a child of the match node
+                    let leaf_idx = self.nodes.len();
+                    self.nodes.push(TrieNode {
+                        value: in_chars,
+                        parent: ndidx,
+                        content: TrieNodeContent::Leaf { data },
+                    });
+                    //if the match node is a perfect match, we add the leaf at the front
+                    if case2 {
+                        debug_assert!(self.nodes[ndidx].try_add_child_front(leaf_idx));
+                    } else {
+                        debug_assert!(self.nodes[ndidx].try_add_child(leaf_idx));
+                    }
+                    return Ok(()); //case 1 & case 2
                 }
                 //else: continue on to case 3
             }
             TrieNodeContent::Leaf { .. } => {
-                if match_len == match_node.value.len() && match_len == in_chars.len() {
-                    //perfect match
-                    return Err(anyhow::anyhow!("Leaf with same value already exists"));
+                if match_len == match_node.value.len() {
+                    if match_len == in_chars.len() {
+                        //perfect match
+                        return Err(anyhow::anyhow!("Leaf with same value already exists"));
+                    }
+                    case3_new_first = false; //case 3-2
                 }
-                //continue on to case 3
             }
         };
         //case 3
@@ -202,11 +223,13 @@ impl Trie {
                 children: vec![ndidx],
             },
         };
+        //add the new intemidate node
         let inter_idx = self.nodes.len();
         self.nodes.push(inter_node);
+        //replace the old node with the new intermediate node
         debug_assert!(self.nodes[par_idx].try_remove_child(ndidx));
         debug_assert!(self.nodes[par_idx].try_add_child(inter_idx));
-        self.nodes[ndidx].parent = inter_idx;
+
         //add the new leaf
         let leaf_idx = self.nodes.len();
         self.nodes.push(TrieNode {
@@ -214,7 +237,15 @@ impl Trie {
             parent: inter_idx,
             content: TrieNodeContent::Leaf { data },
         });
-        debug_assert!(self.nodes[inter_idx].try_add_child(leaf_idx));
+        //add the new leaf and intermediate node as children of the parent
+        if case3_new_first {
+            //case 3-1: add leaf first
+            debug_assert!(self.nodes[inter_idx].try_add_child_front(leaf_idx));
+        } else {
+            //case 3-2: add intermediate node first
+            debug_assert!(self.nodes[inter_idx].try_add_child(leaf_idx));
+        }
+        self.nodes[ndidx].parent = inter_idx;
         Ok(())
     }
 

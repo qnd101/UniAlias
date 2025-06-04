@@ -8,10 +8,16 @@ const appWindow = new Window('main');
 
 let childnum = -1;
 
+try {
+  await invoke("load_dataset");
+} catch (error) 
+{
+  console.error("Error loading dataset:", error);
+}
+
 txtInput.focus()
 
 listen('show_window', (event) => {
-  console.log('Received show-window event from backend!', event);
   appWindow.show(); // Show the window when the event is received
   const setFocus = async () => {
     if (await appWindow.isMinimized()) {
@@ -30,7 +36,7 @@ async function find_matches(text) {
   compList.innerHTML = ''; // Clear previous results
   matches.forEach(match => {
     const item = document.createElement('span');
-    item.innerHTML = `<strong>${match.matchstr.slice(0, match.matchlen)}</strong>${match.matchstr.slice(match.matchlen, match.matchstr.length)} (${match.value})`;
+    item.innerHTML = `<strong>${match.matchstr.slice(0, match.matchlen)}</strong>${match.matchstr.slice(match.matchlen, match.matchstr.length)} (<span class="character-span">${match.value}</span>)`;
     item.className = 'autocomplete-item';
     item.dataset.alias = match.matchstr;
     compList.appendChild(item);

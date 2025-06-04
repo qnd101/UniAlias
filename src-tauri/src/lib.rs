@@ -3,11 +3,12 @@ use enigo::{Enigo, Keyboard, Settings};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
 use std::io::{self, BufRead};
-use std::sync::Arc;
+use std::path::Path;
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::{Emitter, Manager};
 use trie::{Trie, TrieNodeContent};
+use std::sync::RwLock;
 
 pub mod trie;
 
@@ -21,7 +22,8 @@ struct MatchData {
 /// Finds (cnt)-top matches for a given input string
 /// if the input is empty or not ASCII it returns an empty list
 #[tauri::command]
-fn find_matches(input: String, cnt: usize, trie: tauri::State<'_, Arc<Trie>>) -> Vec<MatchData> {
+fn find_matches(input: String, cnt: usize, appstate: tauri::State<'_, AppState>) -> Vec<MatchData> {
+    let trie = appstate.trie.read().unwrap();
     let mut result = Vec::with_capacity(cnt);
     let mut counter = cnt;
     if cnt == 0 || input.len() == 0 || !input.is_ascii() {
@@ -55,7 +57,8 @@ fn find_matches(input: String, cnt: usize, trie: tauri::State<'_, Arc<Trie>>) ->
 //window hiding is handled by frontend
 //not recives the value directly (more safe)
 #[tauri::command]
-fn select_alias(alias: String, trie: tauri::State<'_, Arc<Trie>>) -> bool {
+fn select_alias(alias: String, appstate: tauri::State<'_, AppState>) -> bool {
+    let trie = appstate.trie.read().unwrap();
     match trie.find_value(&alias) {
         Ok(ch) => {
             if let Ok(mut en) = Enigo::new(&Settings::default()) {
@@ -76,20 +79,61 @@ fn select_alias(alias: String, trie: tauri::State<'_, Arc<Trie>>) -> bool {
     }
 }
 
-// //1) parse the unicode config file
-// //2) create a tree from the parsed data
-fn parse_unicode_config(path: &str) -> Result<Trie> {
+// Loads all datasets under the "dataset" directory in the app data directory
+// It expects each dataset to be in CSV format
+// Returns an error if the dataset cannot be loaded or parsed (error type is String)
+#[tauri::command]
+fn load_dataset(app_handle: tauri::AppHandle, appstate: tauri::State<'_, AppState>) -> Result<(), String> {
+    // Create a new Trie instance
+    let mut newtrie = Trie::new();
+    let config_path = app_handle.path().app_data_dir().map_err(|_| "Failed to find appdata directory")?.join("dataset");
+    // Parse all csv files under the path
+    println!("Loading dataset from: {:?}...", config_path);
+    for entry in std::fs::read_dir(config_path).map_err(|_| "Failed to open appdata directory")? {
+        let entry = entry.map_err(|_| "Failed to read appdata entry")?;
+        let path = entry.path();
+        let path = path.as_path();
+
+        if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("csv") {
+            // Parse the unicode config file and append data to the trie
+            parse_unicode_dataset(path, &mut newtrie).map_err(|e| {
+                format!("Failed to parse dataset file {:?}: {}", path, e)
+            })?;
+            println!("Loaded dataset from: {:?}", path.file_name());
+        } else {
+            println!("Skipping non-csv file: {:?}", path);
+        }
+    }
+    println!("Dataset loaded successfully.");
+
+    // Print the trie if debug
+    #[cfg(debug_assertions)]
+    {
+        println!("Current Trie: {}", &newtrie);
+    }
+
+    // Swap the new trie into the ArcSwap
+    let mut triemut = appstate.trie.write().unwrap();
+    *triemut = newtrie;
+    Ok(())
+}
+
+// //1) parse the unicode config file (a csv file of two colums. It contains comments starting with '#')
+// //2) appends all the parsed data into the trie
+fn parse_unicode_dataset(path : &Path,  trie: &mut Trie) -> Result<()> {
     let file = File::open(path).map_err(|e| anyhow::anyhow!("Failed to open file: {}", e))?;
     let reader = io::BufReader::new(file);
 
-    let mut trie = Trie::new();
-
     for line in reader.lines() {
         let line = line.map_err(|e| anyhow::anyhow!("Failed to read line: {}", e))?;
+        if line.len() > 0 && line.starts_with('#') {
+            // Skip comment lines
+            continue;
+        }
         // Process each line as needed
-        if let Some(idx) = line.find(' ') {
+        if let Some(idx) = line.find(',') {
             // Split the line into alias and character
-            let alias = line[..idx].to_string();
+            let alias = line[..idx].trim().to_string();
             // Check alias validity (non-empty, ASCII)
             if alias.is_empty() {
                 return Err(anyhow::anyhow!(
@@ -120,15 +164,17 @@ fn parse_unicode_config(path: &str) -> Result<Trie> {
             ));
         }
     }
-    Ok(trie)
+    Ok(())
+}
+
+struct AppState {
+    trie: RwLock<Trie>,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let trie = parse_unicode_config("C:\\Users\\leeyw\\Projects\\Rust\\unicode-manager\\src-tauri\\target\\debug\\unicode_config.txt").unwrap();
-    print!("{}", trie);
-
     tauri::Builder::default()
+        .manage(AppState{trie: RwLock::new(Trie::new())})
         .setup(|app| {
             let exit_i = MenuItem::with_id(app, "exit", "Exit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&exit_i])?;
@@ -185,9 +231,8 @@ pub fn run() {
                 println!("menu item {:?} not handled", event.id);
             }
         })
-        .manage(Arc::new(trie))
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![find_matches, select_alias])
+        .invoke_handler(tauri::generate_handler![find_matches, select_alias, load_dataset])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

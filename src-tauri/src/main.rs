@@ -1,3 +1,3 @@
 fn main() {
-    unicode_manager_lib::run()
+    unialias_lib::run()
 }

@@ -1,5 +1,5 @@
 :root {
-  font-family: 'Consolas', Courier, monospace;
+  font-family: "Consolas", monospace;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
@@ -16,6 +16,11 @@
   -webkit-text-size-adjust: 100%;
 }
 
+html, body {
+  margin: 0;
+  overscroll-behavior: none; 
+}
+
 .container {
   margin: 0;
   padding-top: 10vh;
@@ -25,59 +30,64 @@
   text-align: center;
 }
 
-input{
-  width: 100%;
-  box-sizing: border-box;
+button, input {
+  color: #0f0f0f;
+  background-color: #fefefe;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  color: #0f0f0f;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  outline: none;
+}
+button {
+  padding: 0.3em 1.2em;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: #f6f6f6;
-    background-color: #2f2f2f;
-  }
+button:hover {
+  background-color: #d3d3d3;
+}
 
-  a:hover {
-    color: #24c8db;
-  }
+#input-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
 
-  input,
-  button {
-    color: #ffffff;
-    background-color: #0f0f0f98;
-  }
+input{
+  width: 90%;
+  box-sizing: border-box;
+  outline: none;
+  padding: 0.6em 1.2em;
+}
 
-  button:active {
-    background-color: #0f0f0f69;
-  }
+nav {
+  display: flex;
+  gap: 0;
+  background-color: #fefefe;
+  margin-bottom: 0.5em;
 }
 
 .autocomplete-list {
   display: flex;
   flex-direction: column;
-  background-color: white;
-  border: 1px solid #ccc;
+  background-color: transparent;
+  align-items: center;
   border-top: none;
 }
 
 .autocomplete-item {
+  width: 90%;
   padding: 8px;
   cursor: pointer;
+  background-color: #fefefe;
   border-top: 1px solid #ccc;
 }
 
-.autocomplete-item:hover {
-  background-color: #f0f0f0;
+.autocomplete-item.selected {
+  background-color: #d3d3d3;
 }
 
-.autocomplete-item.selected {
-  background-color: #f0f0f0;
+.character-span {
+  font: "Symbola", sans-serif;
+  margin: 0 0.2em;
 }
