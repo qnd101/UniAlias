@@ -1,8 +1,8 @@
-:root {
+:root {  
   font-family: "Consolas", monospace;
   font-size: 16px;
   line-height: 24px;
-  font-weight: 400;
+  font-weight: 400; 
 
   color: #0f0f0f;
   background-color: rgba(255, 255, 255, 0.5);
@@ -35,10 +35,10 @@ button, input {
   background-color: #fefefe;
   border: 1px solid transparent;
   font-size: 1em;
-  font-weight: 500;
   font-family: inherit;
 }
 button {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 0.3em 1.2em;
 }
 
@@ -46,7 +46,7 @@ button:hover {
   background-color: #d3d3d3;
 }
 
-#input-container {
+#inputContainer {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -57,6 +57,7 @@ input{
   width: 90%;
   box-sizing: border-box;
   outline: none;
+  font-weight: 500;
   padding: 0.6em 1.2em;
 }
 
@@ -76,11 +77,16 @@ nav {
 }
 
 .autocomplete-item {
-  width: 90%;
+  box-sizing: border-box;
+  width: 92%;
   padding: 8px;
   cursor: pointer;
   background-color: #fefefe;
   border-top: 1px solid #ccc;
+}
+
+.autocomplete-item:hover {
+  background-color: #e5e5e5;
 }
 
 .autocomplete-item.selected {
@@ -88,6 +94,6 @@ nav {
 }
 
 .character-span {
-  font: "Symbola", sans-serif;
+  font-family: "Noto Sans Symbols", sans-serif;
   margin: 0 0.2em;
 }

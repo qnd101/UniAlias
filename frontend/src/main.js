@@ -4,6 +4,8 @@ const { invoke } = window.__TAURI__.core;
 
 const compList = document.getElementById('autocompleteList');
 const txtInput = document.getElementById('textInput');
+const helpBtn = document.getElementById('helpButton');
+const reloadBtn = document.getElementById('reloadButton');
 const appWindow = new Window('main');
 
 let childnum = -1;
@@ -39,6 +41,10 @@ async function find_matches(text) {
     item.innerHTML = `<strong>${match.matchstr.slice(0, match.matchlen)}</strong>${match.matchstr.slice(match.matchlen, match.matchstr.length)} (<span class="character-span">${match.value}</span>)`;
     item.className = 'autocomplete-item';
     item.dataset.alias = match.matchstr;
+    item.addEventListener('click', async () => {
+      await clear_and_hide(); // Clear input and hide the window
+      await select_alias(match.matchstr);
+    });
     compList.appendChild(item);
   });
   if (matches.length > 0) {
@@ -66,6 +72,15 @@ txtInput.addEventListener("input", (event) => {
   }
   find_matches(event.target.value);
   childnum = -1; // Reset childnum when input changes
+});
+
+reloadBtn.addEventListener('click', async () => {
+  try {
+    await invoke("load_dataset");
+  }
+  catch (error) {
+    console.error("Error reloading dataset:", error);
+  }
 });
 
 //TODO arrow key UP Down
