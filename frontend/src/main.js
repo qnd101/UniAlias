@@ -10,13 +10,6 @@ const appWindow = new Window('main');
 
 let childnum = -1;
 
-try {
-  await invoke("load_dataset");
-} catch (error) 
-{
-  console.error("Error loading dataset:", error);
-}
-
 txtInput.focus()
 
 listen('show_window', (event) => {
@@ -65,6 +58,15 @@ async function clear_and_hide() {
   await appWindow.hide(); // Hide the window
 }
 
+window.onload = async () => {
+  try {
+    await invoke("load_dataset");
+  }
+  catch (error) {
+    console.error("Error loading dataset on window load:", error);
+  }
+}
+
 txtInput.addEventListener("input", (event) => {
   if (event.target.value.length === 0) {
     compList.innerHTML = ''; // Clear results if input is less than 3 characters
@@ -86,6 +88,7 @@ reloadBtn.addEventListener('click', async () => {
 //TODO arrow key UP Down
 window.addEventListener('keydown', (e) => {
   if (e.key === "Escape") {
+    e.preventDefault();
     // Use either close or hide
     // await appWindow.close(); // Quits the window
     clear_and_hide(); // Clear input and hide the window
@@ -93,6 +96,7 @@ window.addEventListener('keydown', (e) => {
   }
 
   if (e.key === 'Enter' && childnum >= 0 && childnum < compList.children.length) {
+    e.preventDefault(); 
     //close the window and send api
     let alias = compList.children[childnum].dataset.alias ;
     clear_and_hide().then(() => {    
@@ -100,8 +104,8 @@ window.addEventListener('keydown', (e) => {
     });
   }
 
-  if (e.key === 'Tab') {
-    e.preventDefault(); // Prevent default tab behavior (focus change)
+  if (e.key === 'Tab' || e.key === 'ArrowDown') {
+    e.preventDefault(); // Prevent default tab behavior
     if (compList.children.length === 0)
        return; // No items to select
 
@@ -110,6 +114,19 @@ window.addEventListener('keydown', (e) => {
     // }
 
     childnum = (childnum + 1) % compList.children.length; // Cycle through items
+    console.log(`Selected item index: ${childnum}`);
+    compList.children[childnum].classList.add('selected');
+  }
+  else if (e.key === 'ArrowUp') {
+    e.preventDefault(); // Prevent default tab behavior
+    if (compList.children.length === 0)
+       return; // No items to select
+
+    // if (childnum >= 0) {
+       compList.children[childnum].classList.remove('selected'); // Remove selection from current item
+    // }
+
+    childnum = (childnum - 1 + compList.children.length) % compList.children.length; // Cycle through items
     console.log(`Selected item index: ${childnum}`);
     compList.children[childnum].classList.add('selected');
   }

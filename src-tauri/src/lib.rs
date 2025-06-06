@@ -99,7 +99,7 @@ fn load_dataset(app_handle: tauri::AppHandle, appstate: tauri::State<'_, AppStat
             parse_unicode_dataset(path, &mut newtrie).map_err(|e| {
                 format!("Failed to parse dataset file {:?}: {}", path, e)
             })?;
-            println!("Loaded dataset from: {:?}", path.file_name());
+            println!("Loaded dataset from: {:?}", path.file_name().unwrap());
         } else {
             println!("Skipping non-csv file: {:?}", path);
         }

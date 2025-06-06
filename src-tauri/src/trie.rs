@@ -9,6 +9,7 @@ pub enum TrieNodeContent {
     Leaf { data: char },
 }
 
+#[derive(Debug)]
 pub struct TrieNode {
     pub value: Box<[u8]>, //ASCII string
     pub parent: usize,
@@ -191,9 +192,9 @@ impl Trie {
                     });
                     //if the match node is a perfect match, we add the leaf at the front
                     if case2 {
-                        debug_assert!(self.nodes[ndidx].try_add_child_front(leaf_idx));
+                        self.nodes[ndidx].try_add_child_front(leaf_idx);
                     } else {
-                        debug_assert!(self.nodes[ndidx].try_add_child(leaf_idx));
+                        (self.nodes[ndidx].try_add_child(leaf_idx));
                     }
                     return Ok(());
                 }
@@ -223,8 +224,8 @@ impl Trie {
         let add_new_front = match_len == in_chars.len() ;
         self.nodes.push(inter_node);
         //replace the old node with the new intermediate node
-        debug_assert!(self.nodes[par_idx].try_remove_child(ndidx));
-        debug_assert!(self.nodes[par_idx].try_add_child(inter_idx));
+        self.nodes[par_idx].try_remove_child(ndidx);
+        self.nodes[par_idx].try_add_child(inter_idx);
 
         //add the new leaf
         let leaf_idx = self.nodes.len();
@@ -235,9 +236,9 @@ impl Trie {
         });
         //add the new leaf and intermediate node as children of the parent
         if add_new_front{
-            debug_assert!(self.nodes[inter_idx].try_add_child_front(leaf_idx));
+            self.nodes[inter_idx].try_add_child_front(leaf_idx);
         } else {
-            debug_assert!(self.nodes[inter_idx].try_add_child(leaf_idx));
+            self.nodes[inter_idx].try_add_child(leaf_idx);
         }
         self.nodes[ndidx].parent = inter_idx;
         Ok(())
@@ -276,7 +277,7 @@ pub struct TrieIter<'a> {
     desc_stack: Vec<std::slice::Iter<'a, usize>>, //stack of children iterators
 }
 
-//iterates over all descendants (not contain root)
+//iterates over all descendants (including the ones in the initial desc_stack)
 //depth of root is 0, depth of direct child is 1
 impl Iterator for TrieIter<'_> {
     type Item = (usize, usize); //idx, depth
