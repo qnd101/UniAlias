@@ -12,7 +12,7 @@ File structure is typical of a Tauri project, with an additional `dataset` folde
 1) Type the alias in the textbox. You can navigate through autocompletions using `Tab`, `Up`, and `Down`. 
 2) Select a completion with `Enter`. This will close the window and simulate an insert of the corresponding Unicode character. Press `Esc` if you want to close the window without selecting a completion. 
 3) The program continues to run in the background after the window is gone. You can reopen the window by clicking its icon in the system tray, or simply by the hotkey `Shift+Alt+U`
-4) If you want to stop the program, first right-click its icon in the system tray. This will show the menu strip, containing `Exit`.
+4) To stop the program, first right-click its icon in the system tray. This will show the menu strip, containing `Exit`.
 
 ## Datasets
 The program reads all of its alias data from the appdata folder. Specifically, it reads through every csv file under

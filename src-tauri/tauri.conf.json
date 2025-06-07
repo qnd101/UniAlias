@@ -13,6 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
+        "label": "main",
         "title": "UniAlias",
         "maximizable": false,
         "transparent": true,
@@ -20,6 +21,14 @@
         "height": 300,
         "resizable": false,
         "center": true
+      },
+      {
+        "label": "help",
+        "title": "UniAlias Help",
+        "url": "help.html",
+        "width": 500,
+        "height": 500,
+        "visible": false
       }
     ],
     "security": {

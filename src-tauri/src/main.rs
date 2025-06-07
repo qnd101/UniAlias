@@ -1,3 +1,3 @@
 fn main() {
-    unialias_lib::run()
+    unialias_core::run()
 }

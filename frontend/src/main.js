@@ -1,5 +1,6 @@
 import { Window } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event';
+
 const { invoke } = window.__TAURI__.core;
 
 const compList = document.getElementById('autocompleteList');
@@ -7,6 +8,7 @@ const txtInput = document.getElementById('textInput');
 const helpBtn = document.getElementById('helpButton');
 const reloadBtn = document.getElementById('reloadButton');
 const appWindow = new Window('main');
+const helpWindow = new Window('help');
 
 let childnum = -1;
 
@@ -132,3 +134,8 @@ window.addEventListener('keydown', (e) => {
   }
 }
 );
+
+// Replace the existing help button event listener
+document.getElementById('helpButton').addEventListener('click', () => {
+  helpWindow.show(); // Show the help window
+});

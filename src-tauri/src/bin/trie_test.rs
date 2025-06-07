@@ -1,4 +1,4 @@
-use unialias_lib::trie::Trie;
+use unialias_core::trie::Trie;
 
 fn main() {
     let mut mytrie = Trie::new();
