@@ -1,5 +1,5 @@
 # UniAlias
-Quickly insert Unicode characters anywhere by typing simple aliases!
+Quickly insert Unicode characters anywhere by typing aliases!
 
 ## File Structure
 File structure is typical of a Tauri project, with an additional `dataset` folder.
@@ -9,20 +9,25 @@ File structure is typical of a Tauri project, with an additional `dataset` folde
 - `dataset` contains data for alias-to-unicode mapping. For more info, refer to the documentation inside.
 
 ## Usage
-1) Type the alias in the textbox. Navigate through autocompletions using `Tab`, `Up`, and `Down`. 
-2) Select a completion with `Enter`. This will close the window and simulate an insert of the corresponding Unicode character. Press `Esc` to close the window without selecting a completion. 
-3) The program continues to run in the background after the window is gone. You can reopen it by clicking the icon in the system tray, or by using the hotkey `Shift+Alt+U`
-4) If you want to stop the program, first right-click the icon inside the system tray. This will show the menu strip with `Exit`.
+1) Type the alias in the textbox. You can navigate through autocompletions using `Tab`, `Up`, and `Down`. 
+2) Select a completion with `Enter`. This will close the window and simulate an insert of the corresponding Unicode character. Press `Esc` if you want to close the window without selecting a completion. 
+3) The program continues to run in the background after the window is gone. You can reopen the window by clicking its icon in the system tray, or simply by the hotkey `Shift+Alt+U`
+4) If you want to stop the program, first right-click its icon in the system tray. This will show the menu strip, containing `Exit`.
 
 ## Datasets
-The program reads the alias data from the appdata folder. Specifically, it reads all csv files under
-```<appdata>/com.qnd101.unialias.app/dataset/```
+The program reads all of its alias data from the appdata folder. Specifically, it reads through every csv file under
+```
+<appdata>/com.qnd101.unialias.app/dataset/
+```
 
 In Windows, `<appdata> = $env:APPDATA`. If you are using a different OS, search which folder tauri uses to store application data.
 
 #### Formatting
-Each line in the .csv file should look like:
-`<alias>,<unicode>`
+Each line in the .csv file should look like: 
+```csv
+<alias>,<unicode>
+```
+
 (ex. `alpha,α`)
 
 Note that,
