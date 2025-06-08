@@ -25,6 +25,7 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 anyhow = "1.0"
 enigo = "0.3.0"
+tauri-plugin-fs = "2"
 #arc-swap = "1.7.1"
 #rdev = "0.5.3"
 

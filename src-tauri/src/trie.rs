@@ -179,7 +179,10 @@ impl Trie {
                 if match_len == match_node.value.len() {
                     //case 1 & case 2
                     //if there is a child with the same value, we return an error
-                    if match_len == in_chars.len() && children.len() > 0 && self.nodes[children[0]].value.len() == match_len {
+                    if match_len == in_chars.len()
+                        && children.len() > 0
+                        && self.nodes[children[0]].value.len() == match_len
+                    {
                         return Err(anyhow::anyhow!("Leaf with same value already exists"));
                     }
                     let case2 = match_len == in_chars.len();
@@ -221,7 +224,7 @@ impl Trie {
         };
         //add the new intemidate node
         let inter_idx = self.nodes.len();
-        let add_new_front = match_len == in_chars.len() ;
+        let add_new_front = match_len == in_chars.len();
         self.nodes.push(inter_node);
         //replace the old node with the new intermediate node
         self.nodes[par_idx].try_remove_child(ndidx);
@@ -235,7 +238,7 @@ impl Trie {
             content: TrieNodeContent::Leaf { data },
         });
         //add the new leaf and intermediate node as children of the parent
-        if add_new_front{
+        if add_new_front {
             self.nodes[inter_idx].try_add_child_front(leaf_idx);
         } else {
             self.nodes[inter_idx].try_add_child(leaf_idx);

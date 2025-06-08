@@ -29,6 +29,14 @@
         "width": 500,
         "height": 500,
         "visible": false
+      },
+      {
+        "label": "settings",
+        "title": "UniAlias Settings",
+        "url": "settings/index.html",
+        "width": 500,
+        "height": 500,
+        "visible": false
       }
     ],
     "security": {

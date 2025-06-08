@@ -7,8 +7,10 @@ const compList = document.getElementById('autocompleteList');
 const txtInput = document.getElementById('textInput');
 const helpBtn = document.getElementById('helpButton');
 const reloadBtn = document.getElementById('reloadButton');
+const settingsBtn = document.getElementById('settingsButton');
 const appWindow = new Window('main');
 const helpWindow = new Window('help');
+const settingsWindow = new Window('settings');
 
 let childnum = -1;
 
@@ -87,7 +89,6 @@ reloadBtn.addEventListener('click', async () => {
   }
 });
 
-//TODO arrow key UP Down
 window.addEventListener('keydown', (e) => {
   if (e.key === "Escape") {
     e.preventDefault();
@@ -136,6 +137,10 @@ window.addEventListener('keydown', (e) => {
 );
 
 // Replace the existing help button event listener
-document.getElementById('helpButton').addEventListener('click', () => {
+helpBtn.addEventListener('click', () => {
   helpWindow.show(); // Show the help window
+});
+
+settingsBtn.addEventListener('click', () => {
+  settingsWindow.show(); // Show the settings window
 });

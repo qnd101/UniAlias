@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UniAlias Help</title>
     <style>
-        body {
+        body {            
             font-family: system-ui, -apple-system, sans-serif;
             font-size: 14px;
             padding: 20px;
@@ -51,7 +51,7 @@
 
     <h2>Quick Access</h2>
     <ul>
-        <li>Press <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd> to open the window anytime.</li>
+        <li>Press <kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>U</kbd> to open the window anytime. (The hotkey may be changed in the Settings window)</li>
         <li>Alternatively, click the system tray icon to show the window.</li>
         <li>To exit completely, right-click the system tray icon and select "Exit".</li>
     </ul>
@@ -60,6 +60,26 @@
     <ul>
         <li>Click the "Reload" button to refresh the alias dataset</li>
         <li>The program runs in the background for quick access</li>
+    </ul>
+
+    <h2>Datasets</h2>
+    <ul>
+        <li>Alias data is stored in CSV files in your AppData folder under:
+            <br/>
+            <kbd>com.qnd101.unialias.app/dataset/</kbd>
+        </li>
+        <li>CSV files should follow this format:
+            <pre><code>alias,character    # Example: alpha,α</code></pre>
+        </li>
+        <li>Rules for CSV files:
+            <ul>
+                <li>Aliases must use ASCII characters only (no spaces)</li>
+                <li>Characters must be single Unicode characters</li>
+                <li>Be carfeful that character encoding should be UTF-8</li>
+                <li>Lines starting with # are treated as comments</li>
+            </ul>
+        </li>
+        <li>Use the "Reload" button after modifying dataset files</li>
     </ul>
 </body>
 </html>

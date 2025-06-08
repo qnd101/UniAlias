@@ -1,14 +1,14 @@
-use anyhow::Result;
 use enigo::{Enigo, Keyboard, Settings};
 use serde::{Deserialize, Serialize};
 use std::fs::File;
+use std::collections::HashMap;
 use std::io::{self, BufRead};
 use std::path::Path;
+use std::sync::RwLock;
 use tauri::menu::{Menu, MenuItem};
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
-use tauri::{Emitter, Manager};
+use tauri::{App, Emitter, Manager};
 use trie::{Trie, TrieNodeContent};
-use std::sync::RwLock;
 
 pub mod trie;
 
@@ -83,10 +83,17 @@ fn select_alias(alias: String, appstate: tauri::State<'_, AppState>) -> bool {
 // It expects each dataset to be in CSV format
 // Returns an error if the dataset cannot be loaded or parsed (error type is String)
 #[tauri::command]
-fn load_dataset(app_handle: tauri::AppHandle, appstate: tauri::State<'_, AppState>) -> Result<(), String> {
+fn load_dataset(
+    app_handle: tauri::AppHandle,
+    appstate: tauri::State<'_, AppState>,
+) -> Result<(), String> {
     // Create a new Trie instance
     let mut newtrie = Trie::new();
-    let config_path = app_handle.path().app_data_dir().map_err(|_| "Failed to find appdata directory")?.join("dataset");
+    let config_path = app_handle
+        .path()
+        .app_data_dir()
+        .map_err(|_| "Failed to find appdata directory")?
+        .join("dataset");
     // Parse all csv files under the path
     println!("Loading dataset from: {:?}...", config_path);
     for entry in std::fs::read_dir(config_path).map_err(|_| "Failed to open appdata directory")? {
@@ -96,9 +103,8 @@ fn load_dataset(app_handle: tauri::AppHandle, appstate: tauri::State<'_, AppStat
 
         if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("csv") {
             // Parse the unicode config file and append data to the trie
-            parse_unicode_dataset(path, &mut newtrie).map_err(|e| {
-                format!("Failed to parse dataset file {:?}: {}", path, e)
-            })?;
+            parse_unicode_dataset(path, &mut newtrie)
+                .map_err(|e| format!("Failed to parse dataset file {:?}: {}", path, e))?;
             println!("Loaded dataset from: {:?}", path.file_name().unwrap());
         } else {
             println!("Skipping non-csv file: {:?}", path);
@@ -107,10 +113,10 @@ fn load_dataset(app_handle: tauri::AppHandle, appstate: tauri::State<'_, AppStat
     println!("Dataset loaded successfully.");
 
     // Print the trie if debug
-    #[cfg(debug_assertions)]
-    {
-        println!("Current Trie: {}", &newtrie);
-    }
+    // #[cfg(debug_assertions)]
+    // {
+    //     println!("Current Trie: {}", &newtrie);
+    // }
 
     // Swap the new trie into the ArcSwap
     let mut triemut = appstate.trie.write().unwrap();
@@ -120,7 +126,7 @@ fn load_dataset(app_handle: tauri::AppHandle, appstate: tauri::State<'_, AppStat
 
 // //1) parse the unicode config file (a csv file of two colums. It contains comments starting with '#')
 // //2) appends all the parsed data into the trie
-fn parse_unicode_dataset(path : &Path,  trie: &mut Trie) -> Result<()> {
+fn parse_unicode_dataset(path: &Path, trie: &mut Trie) -> anyhow::Result<()> {
     let file = File::open(path).map_err(|e| anyhow::anyhow!("Failed to open file: {}", e))?;
     let reader = io::BufReader::new(file);
 
@@ -171,11 +177,56 @@ struct AppState {
     trie: RwLock<Trie>,
 }
 
+fn setup_hotkey(app: &mut App, hotkey: &str) -> Result<(), Box<dyn std::error::Error>> {
+    use tauri_plugin_global_shortcut::{Builder, ShortcutState};
+    app.handle().plugin(
+        Builder::new()
+            .with_shortcuts([hotkey])?
+            .with_handler(move |_app, shortcut, event| {
+                if event.state() == ShortcutState::Pressed {
+                    //println!("Shortcut Pressed: {:?}", shortcut);
+                    if let Err(e) = _app
+                        .get_webview_window("main")
+                        .unwrap()
+                        .emit("show_window", ())
+                    {
+                        println!("Error emitting event: {:?}", e);
+                    }
+                }
+            })
+            .build(),
+    )?;
+    Result::Ok(())
+}
+
+fn load_settings(app: &App) -> anyhow::Result<HashMap<String, String>> {
+    let settings_path = app
+        .path()
+        .app_data_dir()?
+        .join("settings.json");
+    let file = File::open(settings_path)?;
+    let reader = io::BufReader::new(file);
+    let dict: HashMap<String, String> = serde_json::from_reader(reader)?;
+    return Ok(dict);
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .manage(AppState{trie: RwLock::new(Trie::new())})
+        .plugin(tauri_plugin_fs::init())
+        .manage(AppState {
+            trie: RwLock::new(Trie::new()),
+        })
         .setup(|app| {
+            // Open settings
+            let settings_dict = match load_settings(app) {
+                Ok(dict) => dict,
+                Err(e) => {
+                    eprintln!("Error loading settings: {}", e);
+                    HashMap::new()
+                }
+            };
+            // Register the tray icon
             let exit_i = MenuItem::with_id(app, "exit", "Exit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&exit_i])?;
             let _ = TrayIconBuilder::new()
@@ -197,22 +248,15 @@ pub fn run() {
                 .icon(app.default_window_icon().unwrap().clone())
                 .build(app)?;
 
-            use tauri_plugin_global_shortcut::{Builder, ShortcutState};
-            app.handle().plugin(
-                Builder::new()
-                    .with_shortcuts(["alt+shift+u"])?
-                    .with_handler(move |_app, shortcut, event| {
-                    if event.state() == ShortcutState::Pressed {
-                        //println!("Shortcut Pressed: {:?}", shortcut);
-                        if let Err(e) = _app.get_webview_window("main").unwrap().emit("show_window", ()) {
-                            println!("Error emitting event: {:?}", e);
-                        }
-                    }
-                })
-                .build(),
-            )?;
-
-            Ok(())
+            let hotkey: &str = settings_dict
+                .get("hotkey")
+                .map(|s| s.as_str())
+                .unwrap_or_else(|| "alt+shift+u");
+            // Setup the hotkey
+            if let Err(e) = setup_hotkey(app, hotkey) {
+                eprintln!("Error setting up hotkey: {}", e);
+            }
+            Result::Ok(())
         })
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
@@ -232,7 +276,11 @@ pub fn run() {
             }
         })
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![find_matches, select_alias, load_dataset])
+        .invoke_handler(tauri::generate_handler![
+            find_matches,
+            select_alias,
+            load_dataset
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
