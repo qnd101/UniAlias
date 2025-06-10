@@ -24,7 +24,7 @@
         ul {
             padding-left: 20px;
         }
-        li {
+        ul>li {
             margin-bottom: 10px;      
             list-style-type: square;
         }
@@ -64,9 +64,16 @@
 
     <h2>Datasets</h2>
     <ul>
-        <li>Alias data is stored in CSV files in your AppData folder under:
+        <li>Alias data is stored in CSV files in your app data folder under:
             <br/>
             <kbd>com.qnd101.unialias.app/dataset/</kbd>
+        </li>
+        <li>
+            The app data folder is <ul>
+                <li>Windows: <kbd>%AppData%</kbd></li>
+                <li>Mac: <kbd>$HOME/Library/Application Support</kbd></li>
+                <li>Linux: <kbd>$XDG_DATA_HOME</kbd> or <kbd>$HOME/.local/share</kbd></li>
+            </ul>
         </li>
         <li>CSV files should follow this format:
             <pre><code>alias,character    # Example: alpha,α</code></pre>
@@ -83,7 +90,18 @@
     </ul>
     <h2>Debug & Issues</h2>
     <ul>
-        <li> If you see any issues, try executing the program in the terminal and check the logs. </li>
+        <li> If you see an issue, check the log files. Follow these instructions to find the log file.
+            <ol>
+                <li>Navigate to the appropriate folder for your OS.
+                    <ul>
+                        <li>Windows: <kbd>AppData/Local</kbd></li>
+                        <li>Mac: <kbd>$HOME/Library/Logs</kbd></li>
+                        <li>Linux: <kbd>$XDG_DATA_HOME</kbd> or <kbd>$HOME/.local/share</kbd></li>
+                    </ul>
+                </li>
+                <li>Find <kbd>com.qnd101.unialias.app/logs/</kbd></li>
+            </ol> 
+        </li>
         <li> For more help, please visit the <a href="https://github.com/qnd101/UniAlias/issues">GitHub Issues page</a>.</li>
     </ul>
 </body>

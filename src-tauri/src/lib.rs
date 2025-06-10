@@ -1,7 +1,7 @@
 use enigo::{Enigo, Keyboard, Settings};
 use serde::{Deserialize, Serialize};
-use std::fs::File;
 use std::collections::HashMap;
+use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
 use std::sync::RwLock;
@@ -49,7 +49,7 @@ fn find_matches(input: String, cnt: usize, appstate: tauri::State<'_, AppState>)
             }
         }
     }
-    //println!("{:?}", result);
+    //log::info!("{:?}", result);
     result
 }
 
@@ -65,7 +65,7 @@ fn select_alias(alias: String, appstate: tauri::State<'_, AppState>) -> bool {
                 if let Ok(_) = en.text(&ch.to_string()) {
                     true
                 } else {
-                    println!("Failed to input character: {}", ch);
+                    log::info!("Failed to input character: {}", ch);
                     false
                 }
             } else {
@@ -73,7 +73,7 @@ fn select_alias(alias: String, appstate: tauri::State<'_, AppState>) -> bool {
             }
         }
         Err(e) => {
-            println!("Error finding alias: {}", e);
+            log::info!("Error finding alias: {}", e);
             false
         }
     }
@@ -95,7 +95,7 @@ fn load_dataset(
         .map_err(|_| "Failed to find appdata directory")?
         .join("dataset");
     // Parse all csv files under the path
-    println!("Loading dataset from: {:?}...", config_path);
+    log::info!("Loading dataset from: {:?}...", config_path);
     for entry in std::fs::read_dir(config_path).map_err(|_| "Failed to open appdata directory")? {
         let entry = entry.map_err(|_| "Failed to read appdata entry")?;
         let path = entry.path();
@@ -105,17 +105,17 @@ fn load_dataset(
             // Parse the unicode config file and append data to the trie
             parse_unicode_dataset(path, &mut newtrie)
                 .map_err(|e| format!("Failed to parse dataset file {:?}: {}", path, e))?;
-            println!("Loaded dataset from: {:?}", path.file_name().unwrap());
+            log::info!("Loaded dataset from: {:?}", path.file_name().unwrap());
         } else {
-            println!("Skipping non-csv file: {:?}", path);
+            log::info!("Skipping non-csv file: {:?}", path);
         }
     }
-    println!("Dataset loaded successfully.");
+    log::info!("Dataset loaded successfully.");
 
     // Print the trie if debug
     // #[cfg(debug_assertions)]
     // {
-    //     println!("Current Trie: {}", &newtrie);
+    //     log::info!("Current Trie: {}", &newtrie);
     // }
 
     // Swap the new trie into the ArcSwap
@@ -161,7 +161,7 @@ fn parse_unicode_dataset(path: &Path, trie: &mut Trie) -> anyhow::Result<()> {
                 )
             })?;
             if let Result::Err(e) = trie.append_leaf(alias, ch) {
-                println!("Warning: {}", e);
+                log::info!("Warning: {}", e);
             }
         } else {
             return Err(anyhow::anyhow!(
@@ -182,15 +182,15 @@ fn setup_hotkey(app: &mut App, hotkey: &str) -> Result<(), Box<dyn std::error::E
     app.handle().plugin(
         Builder::new()
             .with_shortcuts([hotkey])?
-            .with_handler(move |_app, shortcut, event| {
+            .with_handler(move |_app, _, event| {
                 if event.state() == ShortcutState::Pressed {
-                    //println!("Shortcut Pressed: {:?}", shortcut);
+                    //log::info!("Shortcut Pressed: {:?}", shortcut);
                     if let Err(e) = _app
                         .get_webview_window("main")
                         .unwrap()
                         .emit("show_window", ())
                     {
-                        println!("Error emitting event: {:?}", e);
+                        log::info!("Error emitting event: {:?}", e);
                     }
                 }
             })
@@ -200,10 +200,7 @@ fn setup_hotkey(app: &mut App, hotkey: &str) -> Result<(), Box<dyn std::error::E
 }
 
 fn load_settings(app: &App) -> anyhow::Result<HashMap<String, String>> {
-    let settings_path = app
-        .path()
-        .app_data_dir()?
-        .join("settings.json");
+    let settings_path = app.path().app_data_dir()?.join("settings.json");
     let file = File::open(settings_path)?;
     let reader = io::BufReader::new(file);
     let dict: HashMap<String, String> = serde_json::from_reader(reader)?;
@@ -213,6 +210,22 @@ fn load_settings(app: &App) -> anyhow::Result<HashMap<String, String>> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .target(tauri_plugin_log::Target::new(
+                    tauri_plugin_log::TargetKind::LogDir {
+                        file_name: Some("logs".to_string()),
+                    },
+                ))
+                .rotation_strategy(tauri_plugin_log::RotationStrategy::KeepAll)
+                .build(),
+        )
+        .plugin(tauri_plugin_single_instance::init(|app, _, _| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }))
         .plugin(tauri_plugin_fs::init())
         .manage(AppState {
             trie: RwLock::new(Trie::new()),
@@ -222,7 +235,7 @@ pub fn run() {
             let settings_dict = match load_settings(app) {
                 Ok(dict) => dict,
                 Err(e) => {
-                    eprintln!("Error loading settings: {}", e);
+                    log::error!("Error loading settings: {}", e);
                     HashMap::new()
                 }
             };
@@ -254,7 +267,7 @@ pub fn run() {
                 .unwrap_or_else(|| "alt+shift+u");
             // Setup the hotkey
             if let Err(e) = setup_hotkey(app, hotkey) {
-                eprintln!("Error setting up hotkey: {}", e);
+                log::error!("Error setting up hotkey: {}", e);
             }
             Result::Ok(())
         })
@@ -268,11 +281,11 @@ pub fn run() {
         })
         .on_menu_event(|app, event| match event.id.as_ref() {
             "exit" => {
-                println!("Exit...");
+                log::info!("Exit...");
                 app.exit(0);
             }
             _ => {
-                println!("menu item {:?} not handled", event.id);
+                log::info!("menu item {:?} not handled", event.id);
             }
         })
         .plugin(tauri_plugin_opener::init())

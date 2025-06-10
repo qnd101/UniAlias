@@ -10,13 +10,11 @@
     "core:window:allow-show",
     "core:window:allow-unminimize",
     "core:window:allow-set-focus",
-    "global-shortcut:allow-is-registered",
-    "global-shortcut:allow-register",
-    "global-shortcut:allow-unregister",
     "fs:default",
     {
       "identifier": "fs:allow-app-write",
       "allow": [{ "path": "$APPDATA/settings.json" }]
-    }
+    },
+    "log:default"
   ]
 }

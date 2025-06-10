@@ -26,10 +26,13 @@ serde_json = "1"
 anyhow = "1.0"
 enigo = "0.3.0"
 tauri-plugin-fs = "2"
+log = "0.4"
+tauri-plugin-log = "2"
 #arc-swap = "1.7.1"
 #rdev = "0.5.3"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-global-shortcut = "2"
+tauri-plugin-single-instance = "2"
 # windows = "0.61.1"
 # raw-window-handle = "0.6.2"
