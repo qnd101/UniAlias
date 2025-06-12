@@ -1,5 +1,5 @@
 :root {  
-  font-family: "Consolas", monospace;
+  font-family: system-ui, -apple-system, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400; 
@@ -38,7 +38,7 @@ button, input {
   font-family: inherit;
 }
 button {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: inherit;
   padding: 0.3em 1.2em;
 }
 
@@ -54,6 +54,7 @@ button:hover {
 }
 
 input{
+  font-family: "Consolas", monospace;
   width: 90%;
   box-sizing: border-box;
   outline: none;
@@ -77,6 +78,7 @@ nav {
 }
 
 .autocomplete-item {
+  font-family: "Consolas", monospace;
   box-sizing: border-box;
   width: 92%;
   padding: 8px;

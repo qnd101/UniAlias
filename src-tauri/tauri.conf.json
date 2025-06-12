@@ -37,6 +37,14 @@
         "width": 500,
         "height": 500,
         "visible": false
+      },
+      {
+        "label": "dataset_mng",
+        "title": "Dataset Management",
+        "url": "dataset_mng/index.html",
+        "width": 800,
+        "height": 600,
+        "visible": false
       }
     ],
     "security": {

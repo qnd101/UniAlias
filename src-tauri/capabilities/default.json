@@ -2,7 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main", "settings"],
+  "windows": ["main", "settings", "dataset_mng"],
   "permissions": [
     "core:default",
     "opener:default",
@@ -14,7 +14,11 @@
     {
       "identifier": "fs:allow-app-write",
       "allow": [{ "path": "$APPDATA/settings.json" }]
+    },    {
+      "identifier": "fs:allow-app-read",
+      "allow": [{ "path": "$APPDATA/dataset/*.md" }]
     },
+    "fs:read-dirs",
     "log:default"
   ]
 }

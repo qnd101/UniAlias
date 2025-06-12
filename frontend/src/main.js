@@ -8,9 +8,11 @@ const txtInput = document.getElementById('textInput');
 const helpBtn = document.getElementById('helpButton');
 const reloadBtn = document.getElementById('reloadButton');
 const settingsBtn = document.getElementById('settingsButton');
+const datasetBtn = document.getElementById('datasetButton');
 const appWindow = new Window('main');
 const helpWindow = new Window('help');
 const settingsWindow = new Window('settings');
+const datasetMngWindow = new Window('dataset_mng');
 
 let childnum = -1;
 
@@ -143,4 +145,8 @@ helpBtn.addEventListener('click', () => {
 
 settingsBtn.addEventListener('click', () => {
   settingsWindow.show(); // Show the settings window
+});
+
+datasetBtn.addEventListener('click', () => {
+  datasetMngWindow.show(); // Show the dataset management window
 });

@@ -5,7 +5,7 @@ export default defineConfig({
   clearScreen: false,
   // Tauri expects a fixed port, fail if that port is not available
   server: {
-    strictPort: true,
+    strictPort: true
   },
   // to access the Tauri environment variables set by the CLI with information about the current target
   envPrefix: ['VITE_', 'TAURI_PLATFORM', 'TAURI_ARCH', 'TAURI_FAMILY', 'TAURI_PLATFORM_VERSION', 'TAURI_PLATFORM_TYPE', 'TAURI_DEBUG'],
@@ -19,7 +19,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: 'index.html',
-        settings: 'settings/index.html'
+        settings: 'settings/index.html',
+        dataset_mng: 'dataset_mng/index.html'
       }
     }
   },
