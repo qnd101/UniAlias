@@ -108,6 +108,9 @@ window.addEventListener('keydown', (e) => {
       select_alias(alias)
     });
   }
+  if (e.key === "Tab") {
+    txtInput.focus(); // Ensure the input field is focused
+  }
 
   if (e.key === 'Tab' || e.key === 'ArrowDown') {
     e.preventDefault(); // Prevent default tab behavior
@@ -150,3 +153,10 @@ settingsBtn.addEventListener('click', () => {
 datasetBtn.addEventListener('click', () => {
   datasetMngWindow.show(); // Show the dataset management window
 });
+
+const theme = localStorage.getItem('color-theme');
+document.documentElement.setAttribute('color-theme', theme || 'light');
+
+listen('theme-changed', (event) => {
+    document.documentElement.setAttribute('color-theme', event.payload);
+})

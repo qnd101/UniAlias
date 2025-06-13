@@ -1,11 +1,37 @@
-:root {  
-  font-family: system-ui, -apple-system, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 400; 
+:root {
+  --bg-color: #ffffff;
+  --text-color: #0f0f0f;
+  --primary-color: #007bff;
+  --border-color: #ddd;
+  --input-border-color: #ccc;
+  --secondary-color: #6c757d;
+  --item-hover-color: #e5e5e5;
+  --item-selected-color: #d3d3d3;
+  --toolbar-bg-color: #fefefe;
+  --input-bg-color: #fefefe;
+}
 
-  color: #0f0f0f;
-  background-color: rgba(255, 255, 255, 0.5);
+[color-theme="dark"] {
+  --bg-color: #1a1a1a;
+  --text-color: #e1e1e1;
+  --primary-color: #64b5f6;
+  --border-color: #2f2f2f;
+  --input-border-color: #3d3d3d;
+  --secondary-color: #a0a0a0;
+  --item-hover-color: #2a2a2a;
+  --item-selected-color: #333333;
+  --toolbar-bg-color: #242424;
+  --input-bg-color: #242424;
+}
+
+:root {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color: var(--text-color);
+  background-color: color-mix(in srgb, var(--bg-color), transparent 50%);
   border: none;
   outline: none;
 
@@ -16,9 +42,15 @@
   -webkit-text-size-adjust: 100%;
 }
 
-html, body {
+html,
+body {
   margin: 0;
-  overscroll-behavior: none; 
+  overscroll-behavior: none;
+}
+
+body {
+
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .container {
@@ -30,20 +62,22 @@ html, body {
   text-align: center;
 }
 
-button, input {
-  color: #0f0f0f;
-  background-color: #fefefe;
-  border: 1px solid transparent;
+button,
+input {
+  color: var(--text-color);
+  background-color: var(--input-bg-color);
+  border: 1px solid var(--input-border-color);
   font-size: 1em;
   font-family: inherit;
 }
+
 button {
   font-family: inherit;
   padding: 0.3em 1.2em;
 }
 
 button:hover {
-  background-color: #d3d3d3;
+  background-color: var(--item-hover-color);
 }
 
 #inputContainer {
@@ -53,7 +87,8 @@ button:hover {
   width: 100%;
 }
 
-input{
+input {
+  font-size: 16px;
   font-family: "Consolas", monospace;
   width: 90%;
   box-sizing: border-box;
@@ -63,10 +98,11 @@ input{
 }
 
 nav {
-  display: flex;
-  gap: 0;
-  background-color: #fefefe;
-  margin-bottom: 0.5em;
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  column-gap: 0;
+  background-color: var(--toolbar-bg-color);
+  margin-bottom: 1em;
 }
 
 .autocomplete-list {
@@ -83,19 +119,36 @@ nav {
   width: 92%;
   padding: 8px;
   cursor: pointer;
-  background-color: #fefefe;
-  border-top: 1px solid #ccc;
+  background-color: var(--input-bg-color);
+  border-top: 1px solid var(--border-color);
 }
 
 .autocomplete-item:hover {
-  background-color: #e5e5e5;
+  background-color: var(--item-hover-color);
 }
 
 .autocomplete-item.selected {
-  background-color: #d3d3d3;
+  background-color: var(--item-selected-color);
 }
 
 .character-span {
   font-family: "Noto Sans Symbols", sans-serif;
   margin: 0 0.2em;
+}
+
+.toolbarbtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8em;
+  padding-left: 1em;
+  padding-right: 1em;
+  font-weight: 100;
+  font-size: 0.9em;
+  color: var(--text-color);
+}
+
+.toolbarbtn>svg {
+  height: 90%;
+  fill: var(--text-color);
 }

@@ -1,0 +1,143 @@
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333;
+    --primary-color: #007bff;
+    --border-color: #ddd;
+    --input-border-color: #ccc;
+    --secondary-color: #6c757d;
+    --warning-bg-color: #fff3cd;
+    --warning-text-color: #856404;
+    --tab-bg-color: #f8f9fa;
+    --tab-hover-color: #e9ecef;
+    --code-bg-color: #eef0f2;
+    --thead-bg-color: #f4f4f4;
+}
+
+[color-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --text-color: #e1e1e1;
+    --primary-color: #64b5f6;
+    --border-color: #2f2f2f;
+    --input-border-color: #3d3d3d;
+    --secondary-color: #a0a0a0;
+    --warning-bg-color: #3d3525;
+    --warning-text-color: #ffd54f;
+    --tab-bg-color: #242424;
+    --tab-hover-color: #2a2a2a;
+    --code-bg-color: #2a2a2a;
+    --thead-bg-color: #242424;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    padding: 20px;
+    margin: 0;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.notification-strip {
+    background-color: var(--warning-bg-color);
+    color: var(--warning-text-color);
+    padding: 8px 16px;
+    text-align: center;
+    font-size: 0.85em;
+    position: sticky;
+    top: 0;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 20px;
+}
+
+.tab-container {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tab-navigation {
+    display: flex;
+    background: var(--tab-bg-color);
+    border-bottom: 1px solid var(--border-color);
+    overflow-x: auto;
+    padding: 0;
+    margin: 0;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 20px;
+    cursor: pointer;
+    color: var(--text-color);
+    border-right: 1px solid var(--border-color);
+    border-bottom: 2px solid transparent;
+}
+
+.tab-button:hover {
+    background-color: var(--tab-hover-color);
+}
+
+.tab-button.active {
+    background-color: var(--bg-color);
+    border-bottom: 2px solid var(--primary-color);
+    font-weight: 500;
+}
+
+.tab-content {
+    padding: 20px;
+    background: var(--bg-color);
+}
+
+.dataset-content {
+    display: none;
+}
+
+.dataset-content.active {
+    display: block;
+}
+
+.dataset-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+th,
+td {
+    border: 1px solid var(--border-color);
+    padding: 0.5em;
+    text-align: left;
+}
+
+thead {
+    background-color: var(--thead-bg-color);
+}
+
+.dataset-help {
+    line-height: 1.6em
+}
+
+code {
+    font-family: Consolas, monospace;
+    background-color: var(--code-bg-color);
+    padding: 2px 4px;
+    border-radius: 4px;
+}
+
+pre {
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1em;
+}

@@ -20,7 +20,8 @@ export default defineConfig({
       input: {
         main: 'index.html',
         settings: 'settings/index.html',
-        dataset_mng: 'dataset_mng/index.html'
+        dataset_mng: 'dataset_mng/index.html',
+        help: 'help/index.html',
       }
     }
   },

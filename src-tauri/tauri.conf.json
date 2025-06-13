@@ -18,14 +18,14 @@
         "maximizable": false,
         "transparent": true,
         "width": 500,
-        "height": 300,
+        "height": 350,
         "resizable": false,
         "center": true
       },
       {
         "label": "help",
         "title": "UniAlias Help",
-        "url": "help.html",
+        "url": "help/index.html",
         "width": 500,
         "height": 500,
         "visible": false

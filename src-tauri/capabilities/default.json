@@ -2,7 +2,7 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main", "settings", "dataset_mng"],
+  "windows": ["main", "settings", "dataset_mng", "help"],
   "permissions": [
     "core:default",
     "opener:default",

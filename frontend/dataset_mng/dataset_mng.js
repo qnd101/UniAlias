@@ -1,9 +1,19 @@
 import { readDir, BaseDirectory, readTextFile } from "@tauri-apps/plugin-fs"
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import {listen} from "@tauri-apps/api/event";
+import { Window } from "@tauri-apps/api/window";
 
 const tabNavigation = document.querySelector('.tab-navigation');
 const tabContent = document.querySelector('.tab-content');
+const datasetWindow = new Window('dataset_mng');
+
+const theme = localStorage.getItem('color-theme');
+document.documentElement.setAttribute('color-theme', theme || 'light');
+
+listen('theme-changed', (event) => {
+    document.documentElement.setAttribute('color-theme', event.payload);
+})
 
 marked.setOptions({
     breaks: true, // <- enables line breaks on single newlines
@@ -67,5 +77,15 @@ async function load_datasets() {
         tabNavigation.children[0].classList.add('active'); // Activate the first tab button by default
     }
 }
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    // Use either close or hide
+    // await appWindow.close(); // Quits the window
+    datasetWindow.hide(); //hide the window
+    return;
+  }}
+)
 
 load_datasets()
