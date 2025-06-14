@@ -66,7 +66,7 @@ button,
 input {
   color: var(--text-color);
   background-color: var(--input-bg-color);
-  border: 1px solid var(--input-border-color);
+  border: none;
   font-size: 1em;
   font-family: inherit;
 }
@@ -94,7 +94,7 @@ input {
   box-sizing: border-box;
   outline: none;
   font-weight: 500;
-  padding: 0.6em 1.2em;
+  padding: 0.8em 1.2em;
 }
 
 nav {
@@ -115,6 +115,7 @@ nav {
 
 .autocomplete-item {
   font-family: "Consolas", monospace;
+  font-size: 16px;
   box-sizing: border-box;
   width: 92%;
   padding: 8px;
@@ -150,5 +151,5 @@ nav {
 
 .toolbarbtn>svg {
   height: 90%;
-  fill: var(--text-color);
+  fill: var(--secondary-color);
 }

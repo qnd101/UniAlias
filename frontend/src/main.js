@@ -1,5 +1,6 @@
 import { Window } from '@tauri-apps/api/window';
 import { listen } from '@tauri-apps/api/event';
+import {error} from '@tauri-apps/plugin-log';
 
 const { invoke } = window.__TAURI__.core;
 
@@ -68,8 +69,8 @@ window.onload = async () => {
   try {
     await invoke("load_dataset");
   }
-  catch (error) {
-    console.error("Error loading dataset on window load:", error);
+  catch (e) {
+    error(`Error loading dataset on window load: ${e}`);
   }
 }
 
@@ -86,8 +87,8 @@ reloadBtn.addEventListener('click', async () => {
   try {
     await invoke("load_dataset");
   }
-  catch (error) {
-    console.error("Error reloading dataset:", error);
+  catch (e) {
+    error(`Error reloading dataset: ${e}`);
   }
 });
 

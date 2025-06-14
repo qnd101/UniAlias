@@ -112,12 +112,6 @@ fn load_dataset(
     }
     log::info!("Dataset loaded successfully.");
 
-    // Print the trie if debug
-    // #[cfg(debug_assertions)]
-    // {
-    //     log::info!("Current Trie: {}", &newtrie);
-    // }
-
     // Swap the new trie into the ArcSwap
     let mut triemut = appstate.trie.write().unwrap();
     *triemut = newtrie;
@@ -156,7 +150,7 @@ fn parse_unicode_dataset(path: &Path, trie: &mut Trie) -> anyhow::Result<()> {
 
             let ch = line[idx + 1..].trim().chars().next().ok_or_else(|| {
                 anyhow::anyhow!(
-                    "Invalid line format. No character found after space in line: {}",
+                    "Invalid line format. No character found after comma in line: {}",
                     line
                 )
             })?;
@@ -165,7 +159,7 @@ fn parse_unicode_dataset(path: &Path, trie: &mut Trie) -> anyhow::Result<()> {
             }
         } else {
             return Err(anyhow::anyhow!(
-                "Invalid line format. Space separation not found: {}",
+                "Invalid line format. Comma separation not found: {}",
                 line
             ));
         }
