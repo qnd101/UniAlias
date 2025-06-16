@@ -13,9 +13,7 @@ listen('theme-changed', (event) => {
 window.addEventListener('keydown', (e) => {
   if (e.key === "Escape") {
     e.preventDefault();
-    // Use either close or hide
-    // await appWindow.close(); // Quits the window
-    helpWindow.hide(); //hide the window
+    helpWindow.close()
     return;
   }}
 )

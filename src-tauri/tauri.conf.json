@@ -21,30 +21,6 @@
         "height": 350,
         "resizable": false,
         "center": true
-      },
-      {
-        "label": "help",
-        "title": "UniAlias Help",
-        "url": "help/index.html",
-        "width": 500,
-        "height": 500,
-        "visible": false
-      },
-      {
-        "label": "settings",
-        "title": "UniAlias Settings",
-        "url": "settings/index.html",
-        "width": 500,
-        "height": 500,
-        "visible": false
-      },
-      {
-        "label": "dataset_mng",
-        "title": "Dataset Management",
-        "url": "dataset_mng/index.html",
-        "width": 800,
-        "height": 600,
-        "visible": false
       }
     ],
     "security": {

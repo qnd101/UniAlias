@@ -81,9 +81,7 @@ async function load_datasets() {
 window.addEventListener('keydown', (e) => {
   if (e.key === "Escape") {
     e.preventDefault();
-    // Use either close or hide
-    // await appWindow.close(); // Quits the window
-    datasetWindow.hide(); //hide the window
+    datasetWindow.close(); 
     return;
   }}
 )

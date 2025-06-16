@@ -268,9 +268,11 @@ pub fn run() {
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { api, .. } = event {
                 // Prevent the app from quitting
-                api.prevent_close();
-                // Hide the window instead
-                let _ = window.hide();
+                if window.label() == "main" {
+                    api.prevent_close();
+                    // Hide the window instead
+                    let _ = window.hide();
+                }
             }
         })
         .on_menu_event(|app, event| match event.id.as_ref() {

@@ -1,8 +1,30 @@
 import { Window } from '@tauri-apps/api/window';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 import { listen } from '@tauri-apps/api/event';
-import {error} from '@tauri-apps/plugin-log';
+import { error } from '@tauri-apps/plugin-log';
 
 const { invoke } = window.__TAURI__.core;
+
+const window_config = {
+  "help": {
+    "title": "UniAlias Help",
+    "url": "/help/index.html",
+    "width": 500,
+    "height": 500
+  },
+  "settings": {
+    "title": "UniAlias Settings",
+    "url": "/settings/index.html",
+    "width": 500,
+    "height": 500
+  },
+  "dataset_mng": {
+    "title": "Dataset Management",
+    "url": "/dataset_mng/index.html",
+    "width": 800,
+    "height": 600
+  }
+}
 
 const compList = document.getElementById('autocompleteList');
 const txtInput = document.getElementById('textInput');
@@ -10,10 +32,6 @@ const helpBtn = document.getElementById('helpButton');
 const reloadBtn = document.getElementById('reloadButton');
 const settingsBtn = document.getElementById('settingsButton');
 const datasetBtn = document.getElementById('datasetButton');
-const appWindow = new Window('main');
-const helpWindow = new Window('help');
-const settingsWindow = new Window('settings');
-const datasetMngWindow = new Window('dataset_mng');
 
 let childnum = -1;
 
@@ -27,9 +45,29 @@ listen('show_window', (event) => {
     }
     await appWindow.setFocus()
     txtInput.focus();
-  }; 
+  };
   setFocus();
 });
+
+function createWindow(label) {
+  const config = window_config[label];
+  const theme = document.documentElement.getAttribute('color-theme') || 'light';
+  if (!config) {
+    throw new Error(`Window configuration for ${label} not found`);
+  }
+  config["theme"] = theme; // Add theme to the config
+  const newWindow = new WebviewWindow(label, config);
+
+  newWindow.once('tauri://created', () => {
+    console.log(`${label} Window successfully created!`);
+  });
+
+  newWindow.once('tauri://error', (e) => {
+    console.error(`Failed to create window for ${label}:`, e);
+  });
+  return newWindow;
+}
+
 
 async function find_matches(text) {
   // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
@@ -55,8 +93,8 @@ async function find_matches(text) {
   }
 }
 
-async function select_alias(alias){
-  return await invoke("select_alias", { alias});
+async function select_alias(alias) {
+  return await invoke("select_alias", { alias });
 }
 
 async function clear_and_hide() {
@@ -102,10 +140,10 @@ window.addEventListener('keydown', (e) => {
   }
 
   if (e.key === 'Enter' && childnum >= 0 && childnum < compList.children.length) {
-    e.preventDefault(); 
+    e.preventDefault();
     //close the window and send api
-    let alias = compList.children[childnum].dataset.alias ;
-    clear_and_hide().then(() => {    
+    let alias = compList.children[childnum].dataset.alias;
+    clear_and_hide().then(() => {
       select_alias(alias)
     });
   }
@@ -116,10 +154,10 @@ window.addEventListener('keydown', (e) => {
   if (e.key === 'Tab' || e.key === 'ArrowDown') {
     e.preventDefault(); // Prevent default tab behavior
     if (compList.children.length === 0)
-       return; // No items to select
+      return; // No items to select
 
     // if (childnum >= 0) {
-       compList.children[childnum].classList.remove('selected'); // Remove selection from current item
+    compList.children[childnum].classList.remove('selected'); // Remove selection from current item
     // }
 
     childnum = (childnum + 1) % compList.children.length; // Cycle through items
@@ -129,10 +167,10 @@ window.addEventListener('keydown', (e) => {
   else if (e.key === 'ArrowUp') {
     e.preventDefault(); // Prevent default tab behavior
     if (compList.children.length === 0)
-       return; // No items to select
+      return; // No items to select
 
     // if (childnum >= 0) {
-       compList.children[childnum].classList.remove('selected'); // Remove selection from current item
+    compList.children[childnum].classList.remove('selected'); // Remove selection from current item
     // }
 
     childnum = (childnum - 1 + compList.children.length) % compList.children.length; // Cycle through items
@@ -144,20 +182,20 @@ window.addEventListener('keydown', (e) => {
 
 // Replace the existing help button event listener
 helpBtn.addEventListener('click', () => {
-  helpWindow.show(); // Show the help window
+  createWindow('help'); // Show the help window
 });
 
 settingsBtn.addEventListener('click', () => {
-  settingsWindow.show(); // Show the settings window
+  createWindow('settings'); // Show the settings window  
 });
 
 datasetBtn.addEventListener('click', () => {
-  datasetMngWindow.show(); // Show the dataset management window
+  createWindow('dataset_mng'); // Show the dataset management window
 });
 
 const theme = localStorage.getItem('color-theme');
 document.documentElement.setAttribute('color-theme', theme || 'light');
 
 listen('theme-changed', (event) => {
-    document.documentElement.setAttribute('color-theme', event.payload);
+  document.documentElement.setAttribute('color-theme', event.payload);
 })

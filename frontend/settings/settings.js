@@ -37,7 +37,7 @@ async function saveSettings() {
         };
         await writeTextFile('settings.json', JSON.stringify(settings, null, 2),  { baseDir: BaseDirectory.AppData });
         localStorage.setItem('color-theme', themeSelect.value);
-        settingsWindow.hide();
+        settingsWindow.close();
     } catch (error) {
         console.error('Failed to save settings:', error);
     }
@@ -46,15 +46,13 @@ async function saveSettings() {
 // Event listeners
 saveBtn.addEventListener('click', saveSettings);
 cancelBtn.addEventListener('click', () => {
-    settingsWindow.hide();
+    settingsWindow.close();
 });
 
 window.addEventListener('keydown', (e) => {
   if (e.key === "Escape") {
     e.preventDefault();
-    // Use either close or hide
-    // await appWindow.close(); // Quits the window
-    settingsWindow.hide(); //hide the window
+    settingsWindow.close();
     return;
   }}
 )
