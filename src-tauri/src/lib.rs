@@ -203,6 +203,14 @@ fn load_settings(app: &App) -> anyhow::Result<HashMap<String, String>> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    #[cfg(target_os = "windows")]
+    {
+        std::env::set_var(
+            "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
+            "--disable-gpu --disable-software-rasterizer",
+        );
+    }
+
     tauri::Builder::default()
         .plugin(
             tauri_plugin_log::Builder::new()

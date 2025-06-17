@@ -14,7 +14,7 @@ const window_config = {
   },
   "settings": {
     "title": "UniAlias Settings",
-    "url": "/settings/index.html",
+    "url": "settings/index.html",
     "width": 500,
     "height": 500
   },
@@ -26,6 +26,7 @@ const window_config = {
   }
 }
 
+const appWindow = new Window('main');
 const compList = document.getElementById('autocompleteList');
 const txtInput = document.getElementById('textInput');
 const helpBtn = document.getElementById('helpButton');
