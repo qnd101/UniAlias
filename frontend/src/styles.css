@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Noto Sans Math';
+  src: url('/NotoSansMath-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   --bg-color: #ffffff;
   --text-color: #0f0f0f;
@@ -133,7 +140,7 @@ nav {
 }
 
 .character-span {
-  font-family: "Noto Sans Symbols", sans-serif;
+  font-family: "Noto Sans Math", sans-serif;
   margin: 0 0.2em;
 }
 

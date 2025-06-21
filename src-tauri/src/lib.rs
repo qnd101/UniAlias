@@ -245,6 +245,7 @@ pub fn run() {
             let exit_i = MenuItem::with_id(app, "exit", "Exit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&exit_i])?;
             let _ = TrayIconBuilder::new()
+                .tooltip("UniAlias")
                 .menu(&menu)
                 .on_tray_icon_event(|tray, event| match event {
                     TrayIconEvent::Click {
