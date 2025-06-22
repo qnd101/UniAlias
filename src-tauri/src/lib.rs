@@ -201,7 +201,6 @@ fn load_settings(app: &App) -> anyhow::Result<HashMap<String, String>> {
     return Ok(dict);
 }
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     #[cfg(target_os = "windows")]
     {
@@ -210,6 +209,9 @@ pub fn run() {
             "--disable-gpu --disable-software-rasterizer",
         );
     }
+
+    let args: Vec<String> = std::env::args().collect();
+    let hidden = args.iter().any(|arg| arg == "--hidden");
 
     tauri::Builder::default()
         .plugin(
@@ -232,7 +234,7 @@ pub fn run() {
         .manage(AppState {
             trie: RwLock::new(Trie::new()),
         })
-        .setup(|app| {
+        .setup(move |app| {
             // Open settings
             let settings_dict = match load_settings(app) {
                 Ok(dict) => dict,
@@ -272,6 +274,13 @@ pub fn run() {
             if let Err(e) = setup_hotkey(app, hotkey) {
                 log::error!("Error setting up hotkey: {}", e);
             }
+
+            // If the "--hidden" argument is not provided, show the main window
+            if !hidden {
+                let window = app.get_webview_window("main").unwrap();
+                window.show().unwrap();
+            } 
+
             Result::Ok(())
         })
         .on_window_event(|window, event| {

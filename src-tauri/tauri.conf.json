@@ -3,6 +3,7 @@
   "productName": "UniAlias",
   "version": "0.1.0",
   "identifier": "com.qnd101.unialias.app",
+  "mainBinaryName": "unialias",
   "build": {
     "beforeBuildCommand": "cd frontend && npm install && npm run build",
     "beforeDevCommand": "cd frontend && npm install && npm run dev",
@@ -20,7 +21,8 @@
         "width": 500,
         "height": 350,
         "resizable": false,
-        "center": true
+        "center": true,
+        "visible": false
       }
     ],
     "security": {
@@ -36,6 +38,12 @@
         "icons/128x128@2x.png",
         "icons/icon.icns",
         "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "wix": {
+        "fragmentPaths": ["./windows/fragments/startup.wxs"],
+        "featureRefs": ["StartUp"]
+      }
+    }
   }
 }

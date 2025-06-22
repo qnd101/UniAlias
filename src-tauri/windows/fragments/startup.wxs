@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Fragment>
+        <Component Id="StartupRegistry" Guid="b4f77e14-d02d-4ab7-829d-7335741722a1"
+        Directory="INSTALLDIR">
+            <RegistryValue Root="HKCU"
+                Key="Software\Microsoft\Windows\CurrentVersion\Run"
+                Name="UniAlias"
+                Value="&quot;[INSTALLDIR]unialias.exe&quot; --hidden"
+                Type="string"
+                KeyPath="yes"/>
+        </Component>
+        <Feature Id="StartUp"
+            Title="StartUp"
+            Description="Automatically run UniAlias at startup"
+            Level="1">
+            <ComponentRef Id="StartupRegistry" />
+        </Feature>
+    </Fragment>
+</Wix>
