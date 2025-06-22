@@ -1,7 +1,8 @@
 use enigo::{Enigo, Keyboard, Settings};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fs::File;
+use std::fs::{self, File};
+use std::path::PathBuf;
 use std::io::{self, BufRead};
 use std::path::Path;
 use std::sync::RwLock;
@@ -201,12 +202,39 @@ fn load_settings(app: &App) -> anyhow::Result<HashMap<String, String>> {
     return Ok(dict);
 }
 
+fn copy_files(from_dir : &PathBuf, to_dir : &PathBuf, ext_whitelist : &[&str]) -> anyhow::Result<()> {
+    fs::create_dir_all(to_dir)?;
+
+    for entry in fs::read_dir(from_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_file() {
+            let file_name = path.file_name().unwrap(); // safe if path is file
+            if let Some(ext) = path.extension() {
+                if !ext_whitelist.contains(&ext.to_str().unwrap()) {
+                    continue;
+                }
+            }
+            else {
+                continue;
+            }
+            let dest_path = to_dir.join(file_name);
+            fs::copy(&path, &dest_path)?;
+            println!("Copied {:?} to {:?}", path, dest_path);
+        }
+    }
+
+    Ok(())
+}
+
 pub fn run() {
+    
     #[cfg(target_os = "windows")]
     {
         std::env::set_var(
             "WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS",
-            "--disable-gpu --disable-software-rasterizer",
+            "--disable-gpu", // --disable-software-rasterizer
         );
     }
 
@@ -235,6 +263,21 @@ pub fn run() {
             trie: RwLock::new(Trie::new()),
         })
         .setup(move |app| {
+            //Move Datasets if dataset folder not exists in appdata
+            let ext_whitelist = ["csv", "md"];
+            if let Ok(mut default_dataset_dir) = app.path().resource_dir() {
+                default_dataset_dir.push("dataset");
+                if let Ok(mut dataset_dir) = app.path().app_data_dir() {
+                    dataset_dir.push("dataset");
+                    if !dataset_dir.exists(){
+                        log::info!("Did not find a dataset folder. Creating one with default datasets...");
+                        if let Err(e) = copy_files(&default_dataset_dir, &dataset_dir, &ext_whitelist) {
+                            log::error!("Error while moving default datasets: {}", e);
+                        }
+                    }
+                }
+            }
+
             // Open settings
             let settings_dict = match load_settings(app) {
                 Ok(dict) => dict,

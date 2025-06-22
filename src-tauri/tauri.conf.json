@@ -39,6 +39,12 @@
         "icons/icon.icns",
         "icons/icon.ico"
     ],
+    "resources": [
+      "dataset/math_unicode.csv",
+      "dataset/math_unicode.md",
+      "dataset/cjk_brackets.csv",
+      "dataset/cjk_brackets.md"
+    ],
     "windows": {
       "wix": {
         "fragmentPaths": ["./windows/fragments/startup.wxs"],
